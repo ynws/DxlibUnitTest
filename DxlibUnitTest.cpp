@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "DxLib.h"
 
+#ifndef _ROGEBREAZ_TEST
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	if (DxLib_Init() == -1)
@@ -16,3 +17,4 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	return 0;
 }
+#endif
