@@ -1,0 +1,9 @@
+.vs/
+ipch/
+Release/
+Debug/
+
+Log.txt
+
+*.db
+*.opendb
