@@ -11,7 +11,7 @@ GoogleTest + gcov に方向転換。
 
 1. ~~Dxlibサンプルプログラム作成~~  
 1. ~~GoogleTest導入~~ 
-1. Dxlibのラッパークラスを作成  
+1. ~~Dxlibのラッパークラスを作成~~  
 1. Jenkins導入  
 1. コミットをフックしてビルド  
 1. コミットをフックしてテスト  
@@ -55,6 +55,7 @@ int WINAPI WinMain(...){
 ## Dxlibのラッパークラスを作成
 テストのたびにGUI Window出すわけにもいかないので、テスト用のラッパークラスを作成する。  
 その後、Google MockでMock作成  
+http://www.naturalsoftware.jp/entry/20100723/1279810738  
 http://opencv.jp/googlemockdocs/fordummies.html
 
 とりあえず自分がよく使う関数だけ作る。  
@@ -67,7 +68,19 @@ EXPECT_CALL(mockDxlib, DrawString(0, 0, "test", COL_BLACK)).Times(1);
 
 Game* game = new Game(&mockDxlib);
 EXPECT_TRUE(game->print());
+
 ```
+
+モック入れた後のビルドでリンクエラーが出て詰まったのでメモ。  
+GoogleTestの導入と同じように、追加の依存ファイル(gmock.lib)の設定が必要だった。  
+以下をソースに書けば回避可能だが、せっかくなので設定に追加。
+
+```c
+#pragma comment( lib, "gmock.lib" )
+```
+
+とりあえずDrawStringの呼び出しテストがかけた。  
+あとは単純作業で他関数に展開するだけなのでスキップ。
 
 ## Jenkins導入
 
