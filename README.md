@@ -12,7 +12,7 @@ GoogleTest + gcov に方向転換。
 1. ~~Dxlibサンプルプログラム作成~~  
 1. ~~GoogleTest導入~~ 
 1. ~~Dxlibのラッパークラスを作成~~  
-1. Jenkins導入  
+1. ~~Jenkins導入~~  
 1. コミットをフックしてビルド  
 1. コミットをフックしてテスト  
 1. テスト結果をJenkinsに表示  
@@ -83,6 +83,28 @@ GoogleTestの導入と同じように、追加の依存ファイル(gmock.lib)�
 あとは単純作業で他関数に展開するだけなのでスキップ。
 
 ## Jenkins導入
+http://futurismo.biz/archives/299
+
+2.7.3をインストール。以前入れた時よりだいぶ進化していて戸惑う。
+
+#### VSプロジェクトの登録
+http://unicus.jp/skmk/archives/515
+
+MSBuildの設定はシステムの設定ではなくGlobal Tool Configurationにあった。
+C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe を追加。    
+
+また、ビルドファイルのパスは以下。  
+C:\Program Files (x86)\Jenkins\workspace\DxlibUnitTest\DxlibUnitTest.sln
+
+#### コンパイルエラー
+fatal error C1083: Cannot open include file: 'DxLib.h': No such file or directory  
+-> x64でビルドされているが、追加のinclude設定していなかった。  
+x64の設定すれば通りそうだが、メインはx86なのでビルドオプションで切り替える。
+
+参考サイトの記述に加え、MSBuildの引数に以下を追加  
+ /p:Platform=x86
+
+ -> ビルドOK
 
 ## コミットをフックしてビルド
 
