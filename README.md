@@ -13,11 +13,8 @@ GoogleTest + gcov に方向転換。
 1. ~~GoogleTest導入~~ 
 1. ~~Dxlibのラッパークラスを作成~~  
 1. ~~Jenkins導入~~  
-1. コミットをフックしてビルド  
-1. コミットをフックしてテスト  
-1. テスト結果をJenkinsに表示  
-1. gcovでカバレッジ計測  
-1. カバレッジ結果をJenkinsに表示  
+1. ~~ビルド後にテスト 結果をJenkinsに表示~~  
+1. gcovでカバレッジ計測 結果をJenkinsに表示  
 
 ## Dxlibサンプルプログラム作成
 [公式](http://dxlib.o.oo7.jp/use/dxuse_vscom2015.html)の手順に従いセットアップ
@@ -106,13 +103,12 @@ x64の設定すれば通りそうだが、メインはx86なのでビルドオ�
 
  -> ビルドOK
 
-## コミットをフックしてビルド
+## ビルド後にテスト 結果をJenkinsに表示  
+http://futurismo.biz/archives/475
 
-## コミットをフックしてテスト
+ビルド手順最後に以下のWindowsバッチ追加  
+Release\GTest.exe --gtest_output="xml:test_result.xml"
 
-## テスト結果をJenkinsに表示
+ビルド後の処理で集計
 
-## gcovでカバレッジ計測
-
-## カバレッジ結果をJenkinsに表示
-
+## gcovでカバレッジ計測 結果をJenkinsに表示  
