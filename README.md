@@ -140,3 +140,5 @@ echo ## OpenCppCoverage
 echo ################################################################################
 fullpath\OpenCppCoverage.exe --source MainLib --export_type=cobertura -- Debug\GTest.exe
 ```
+
+NOTE: テストが一切なく、かすりもしなかったソースはそもそも表示対象外になる模様。
