@@ -15,6 +15,7 @@ GoogleTest + OpenCppCoverage に方向転換。
 1. ~~Jenkins導入~~  
 1. ~~ビルド後にテスト 結果をJenkinsに表示~~  
 1. ~~カバレッジ計測 結果をJenkinsに表示~~  
+1. ~~ステップ数カウントをJenkinsに表示~~  
 
 ## Dxlibサンプルプログラム作成
 [公式](http://dxlib.o.oo7.jp/use/dxuse_vscom2015.html)の手順に従いセットアップ
@@ -142,3 +143,13 @@ fullpath\OpenCppCoverage.exe --source MainLib --export_type=cobertura -- Debug\G
 ```
 
 NOTE: テストが一切なく、かすりもしなかったソースはそもそも表示対象外になる模様。
+
+## ステップ数カウントをJenkinsに表示
+http://futurismo.biz/archives/629  
+プラグインはJenkinsから直接インストール可能
+
+設定値の"ファイルの種類"は集計の表示単位なので、MAIN, LIB, TESTに分けた
+
+ERROR: null といメッセージが表示されてエラー。  
+http://d.hatena.ne.jp/takuma02141978/20111225/1324778439  
+Jenkinsの管理 -> システムの設定 を開いて一度保存すると次回以降OK
