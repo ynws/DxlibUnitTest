@@ -1,8 +1,7 @@
 #include "stdafx.h"
-#include <gtest/gtest.h>
 
 #include "MockDxlib.h"
-#include "..\MainLib\TestTargetClass.h"
+#include "../MainLib/TestTargetClass.h"
 
 TEST(TestTargetClass, GetNumber) {
 	EXPECT_EQ(100, TestTargetClass::GetNumber());
@@ -14,4 +13,7 @@ TEST(TestTargetClass, Dxlib) {
 
 	TestTargetClass target(&mockDx);
 	target.DrawTestString();
+}
+TEST(TestTargetClass, ifelse) {
+	EXPECT_EQ(0, TestTargetClass::ifElseTest(100));
 }

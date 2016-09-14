@@ -1,7 +1,7 @@
 #pragma once
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include "..\MainLib\Dx.h"
+#include "../MainLib/Dx.h"
 
 class MockDxlib : public Dx {
 public:

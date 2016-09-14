@@ -9,6 +9,7 @@ public:
 	~TestTargetClass();
 
 	static int GetNumber();
+	static int ifElseTest(int n);
 	static int NotTestCode();
 	void DrawTestString();
 };

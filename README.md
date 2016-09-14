@@ -17,6 +17,7 @@ GoogleTest + OpenCppCoverage に方向転換。
 1. ~~カバレッジ計測 結果をJenkinsに表示~~  
 1. ~~ステップ数カウントをJenkinsに表示~~  
 1. ~~TODOをJenkinsに表示~~  
+1. ~~カバレッジ計測をgcovで行う~~  
 
 ## Dxlibサンプルプログラム作成
 [公式](http://dxlib.o.oo7.jp/use/dxuse_vscom2015.html)の手順に従いセットアップ
@@ -165,3 +166,79 @@ Task Scanner Plugin
 
 日本語文字化けの際は、"高度な設定"からエンコーディングを指定。  
 未指定の場合システムのデフォルトになる。
+
+## カバレッジ計測をgcovで行う
+OpenCppCoverageでは分岐のカバレッジがうまく出ない。  
+gcovを利用する方向で考える。
+
+#### ビルドマシン追加(不要だった)
+メインマシンがWindowsだが、gcovはlinuxマシン上でテストをビルドする必要あり。  
+https://www.infoq.com/jp/articles/jenkins_20111012  
+を参考にビルドマシン追加・・・  
+SSHポート変更は"高度な設定"から。  
+
+#### Bash on Windows(不要だった)
+と思ったが、Bash on Ubuntu on Windowsでできるのでは？  
+インストール  
+http://qiita.com/Aruneko/items/c79810b0b015bebf30bb  
+jenkins経由でコマンド実行できない？  
+本質でないのでパス。素直に別マシンでビルドする
+
+ビルドマシン追加ではなく、SSHプラグインで実施。
+
+#### gcov参考サイト  
+http://futurismo.biz/archives/485  
+http://qiita.com/kuchida1981/items/9bb8fa4cc04635e7e909  
+
+### linux上でビルドする際の問題
+テスト用ソースの以下が邪魔
+* #include <SDKDDKVer.h>
+* #include <tchar.h>
+* includeの相対パスで￥を使っているとlinuxで読めない。  
+windowsはlinuxの形式でも読めるので、そっちに倒す
+
+### カバレッジデータの転送
+作成したカバレッジデータはsambaでWindowsPCに共有。  
+-> Jenkinsのbat処理からネットワークドライブにアクセスできない  
+http://futurismo.biz/archives/331  
+Windowsサービスで立ち上げるとネットに接続できないらしい。  
+コマンドプロンプトから立ち上げることにした。  
+これにより、従来のjob設定ファイルやプラグインを  
+`User\hoge\.jenkins`に移動。  
+ビルド設定に一部workspaceの絶対パスが書いてあったため一時動かなかった。  
+よほどのことがない限りジョブ設定は相対パスと環境変数で書くこと！ 
+
+### gcovカバレッジデータをjenkinsで表示
+で、ようやくgcovデータをjenkinsで表示できた  
+問題点が2点。
+
++ googletestのソースもカバレッジに出てしまう
++ 結果の参照先ソースファイルパスがlinux上のパスなので、jenkinsでソースが表示できない
+
+-> gcovrの`-r`オプションで解決。ROOTの指定。
+
+最終的なSSHコマンドは以下  
+(要MakeFile化)
+```bash
+cd ~/jenkins
+rm -r DxlibUnitTest
+git clone https://github.com/ynws/DxlibUnitTest.git
+mkdir DxlibUnitTest/build
+cd DxlibUnitTest/build
+
+export GTEST=~/googletest-master
+export GTLIB=${GTEST}/build/gtest
+export GMLIB=${GTEST}/build/googlemock
+
+g++ -c ../MainLib/*.cpp -DLINUX -fprofile-arcs -ftest-coverage
+ar r libstatic.a *.o
+g++ -W -Wall ../GTest/*.cpp -DLINUX -I${GTEST}/googletest/include -I${GTEST}/googlemock/include ${GTLIB}/libgtest.a ${GTLIB}/libgtest_main.a ${GMLIB}/libgmock.a ${GMLIB}/libgmock_main.a libstatic.a -lpthread -fprofile-arcs -ftest-coverage -o test
+
+./test
+
+gcovr -r ~/jenkins/DxlibUnitTest --xml --output=GTestCoverage.xml .
+
+cp GTestCoverage.xml /home/samba/jenkins/
+```
+
+上記コマンドの後、sambaのファイルをcopy
