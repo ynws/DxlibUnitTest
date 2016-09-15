@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "DxLib.h"
-#include "MainLib\TestTargetClass.h"
-#include "MainLib\RealDxlib.h"
+#include "TestTargetClass.h"
+#include "RealDxlib.h"
 
 #ifndef _ROGEBREAZ_TEST
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)

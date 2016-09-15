@@ -192,10 +192,11 @@ http://qiita.com/kuchida1981/items/9bb8fa4cc04635e7e909
 
 ### linux上でビルドする際の問題
 テスト用ソースの以下が邪魔
-* #include <SDKDDKVer.h>
-* #include <tchar.h>
+* `#include <SDKDDKVer.h>`
+* `#include <tchar.h>`
 * includeの相対パスで￥を使っているとlinuxで読めない。  
-windowsはlinuxの形式でも読めるので、そっちに倒す
+windowsはlinuxの形式でも読めるので、そっちに倒す  
+-> というか、パスで書かないでインクルードディレクトリの追加でパス解決する
 
 ### カバレッジデータの転送
 作成したカバレッジデータはsambaでWindowsPCに共有。  
@@ -217,6 +218,15 @@ Windowsサービスで立ち上げるとネットに接続できないらしい�
 
 -> gcovrの`-r`オプションで解決。ROOTの指定。
 
+### テストコードのカバレッジ問題
+
+GoogleTestのテストコードをgcovで処理すると、マクロのカバレッジがひどいことになる。  
+そもそもテスト対象のコードだけカバレッジ出せばいいので、ROOT指定でテスト対象だけ選択。
+
+ここで、jenkinsのワークスペースから見たテスト対象ソースは `MainLib/hoge.cpp`  
+ROOTをそこにすると、カバレッジデータのxmlでは`hoge.cpp`と表示され、jenkinsがファイルを特定できない。  
+他に方法もありそうだけど、xmlのフォーマットが決まっているので置換で修正
+
 最終的なSSHコマンドは以下  
 (要MakeFile化)
 ```bash
@@ -232,13 +242,14 @@ export GMLIB=${GTEST}/build/googlemock
 
 g++ -c ../MainLib/*.cpp -DLINUX -fprofile-arcs -ftest-coverage
 ar r libstatic.a *.o
-g++ -W -Wall ../GTest/*.cpp -DLINUX -I${GTEST}/googletest/include -I${GTEST}/googlemock/include ${GTLIB}/libgtest.a ${GTLIB}/libgtest_main.a ${GMLIB}/libgmock.a ${GMLIB}/libgmock_main.a libstatic.a -lpthread -fprofile-arcs -ftest-coverage -o test
+g++ -W -Wall ../GTest/*.cpp -I../MainLib -DLINUX -I${GTEST}/googletest/include -I${GTEST}/googlemock/include ${GTLIB}/libgtest.a ${GTLIB}/libgtest_main.a ${GMLIB}/libgmock.a ${GMLIB}/libgmock_main.a libstatic.a -lpthread -fprofile-arcs -ftest-coverage -o test
 
 ./test
 
-gcovr -r ~/jenkins/DxlibUnitTest --xml --output=GTestCoverage.xml .
+gcovr -r ~/jenkins/DxlibUnitTest/MainLib --xml --output=MainLibCoverage.xml .
+vim -c %s/filename=\"/\\0MainLib\\//g -c x MainLibCoverage.xml
 
-cp GTestCoverage.xml /home/samba/jenkins/
+cp MainLibCoverage.xml /home/samba/jenkins/
 ```
 
 上記コマンドの後、sambaのファイルをcopy

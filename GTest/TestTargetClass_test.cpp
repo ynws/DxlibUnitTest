@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
 #include "MockDxlib.h"
-#include "../MainLib/TestTargetClass.h"
+#include "TestTargetClass.h"
 
 TEST(TestTargetClass, GetNumber) {
 	EXPECT_EQ(100, TestTargetClass::GetNumber());
