@@ -227,6 +227,17 @@ GoogleTestのテストコードをgcovで処理すると、マクロのカバレ
 ROOTをそこにすると、カバレッジデータのxmlでは`hoge.cpp`と表示され、jenkinsがファイルを特定できない。  
 他に方法もありそうだけど、xmlのフォーマットが決まっているので置換で修正
 
+### G++のカバレッジ問題
+
+1. デストラクタのカバレッジが100%にならない  
+http://stackoverflow.com/questions/7199360/what-is-the-branch-in-the-destructor-reported-by-gcov  
+GCCの問題らしい。-Oオプションで最適かかけて回避
+
+1. `p = new Hoge()` のカバレッジが100%にならない  
+https://stackoverflow.com/questions/23219614/why-gcc-4-1-gcov-reports-100-branch-coverage-and-newer-4-4-4-6-4-8-report  
+constructorの例外を考慮していないから。  
+とはいえ、そもそも使う予定はないので`-fno-exceptions` で回避  
+
 最終的なSSHコマンドは以下  
 (要MakeFile化)
 ```bash
@@ -240,9 +251,16 @@ export GTEST=~/googletest-master
 export GTLIB=${GTEST}/build/gtest
 export GMLIB=${GTEST}/build/googlemock
 
-g++ -c ../MainLib/*.cpp -DLINUX -fprofile-arcs -ftest-coverage
+g++ -std=c++11 -O2 -fno-exceptions -W -Wall -c ../MainLib/*.cpp \
+    -DLINUX -fprofile-arcs -ftest-coverage
 ar r libstatic.a *.o
-g++ -W -Wall ../GTest/*.cpp -I../MainLib -DLINUX -I${GTEST}/googletest/include -I${GTEST}/googlemock/include ${GTLIB}/libgtest.a ${GTLIB}/libgtest_main.a ${GMLIB}/libgmock.a ${GMLIB}/libgmock_main.a libstatic.a -lpthread -fprofile-arcs -ftest-coverage -o test
+
+g++ -std=c++11 -O2 -fno-exceptions -W -Wall ../GTest/*.cpp \
+    -DLINUX -fprofile-arcs -ftest-coverage \
+    -I../MainLib libstatic.a \
+    -I${GTEST}/googletest/include ${GTLIB}/libgtest.a ${GTLIB}/libgtest_main.a \
+    -I${GTEST}/googlemock/include ${GMLIB}/libgmock.a ${GMLIB}/libgmock_main.a \
+    -lpthread -o test
 
 ./test
 
